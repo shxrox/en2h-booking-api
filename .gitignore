@@ -1,0 +1,42 @@
+# compiled output
+/dist
+/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Testing
+/coverage
+
+# NestJS
+.nest
+
+# Environment variables
+.env
+.env.test
+.env.production
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Data & Models (General exclusions for clean repositories)
+*.csv
+*.dat
+*.pkl
+*.sqlite
