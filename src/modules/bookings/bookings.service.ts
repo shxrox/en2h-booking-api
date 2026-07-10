@@ -45,13 +45,13 @@ export class BookingsService {
   }
 
   async findAll(): Promise<Booking[]> {
-    return this.bookingsRepository.find({ relations: ['service'] });
+    return this.bookingsRepository.find({ relations: { service: true } });
   }
 
   async findOne(id: string): Promise<Booking> {
     const booking = await this.bookingsRepository.findOne({ 
       where: { id },
-      relations: ['service'] 
+      relations: { service: true }
     });
     
     if (!booking) {
