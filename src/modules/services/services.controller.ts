@@ -3,8 +3,11 @@ import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('services')
+@ApiTags('Services')      
+@ApiBearerAuth()
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
