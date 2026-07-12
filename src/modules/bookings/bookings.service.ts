@@ -16,17 +16,18 @@ export class BookingsService {
   ) {}
 
   async create(createBookingDto: CreateBookingDto): Promise<Booking> {
-    const bookingDate = new Date(`${createBookingDto.bookingDate}T${createBookingDto.bookingTime}`);
+    const bookingDate = new Date(
+      `${createBookingDto.bookingDate}T${createBookingDto.bookingTime}`
+    );
+
     const now = new Date();
 
     if (bookingDate < now) {
       throw new BadRequestException('Booking dates cannot be in the past');
     }
 
-    // Verify service exists (throws NotFoundException if it doesn't)
     await this.servicesService.findOne(createBookingDto.serviceId);
 
-    // Bonus Feature: Prevent duplicate bookings
     const existingBooking = await this.bookingsRepository.findOne({
       where: {
         serviceId: createBookingDto.serviceId,
@@ -37,43 +38,67 @@ export class BookingsService {
     });
 
     if (existingBooking) {
-      throw new ConflictException('This time slot is already booked for this service');
+      throw new ConflictException(
+        'This time slot is already booked for this service'
+      );
     }
 
     const booking = this.bookingsRepository.create(createBookingDto);
+
     return this.bookingsRepository.save(booking);
   }
 
-  async findAll(): Promise<Booking[]> {
-    return this.bookingsRepository.find({ relations: { service: true } });
+  async findAll(status?: BookingStatus): Promise<Booking[]> {
+    if (status) {
+      return this.bookingsRepository.find({
+        where: { status },
+        relations: { service: true },
+      });
+    }
+
+    return this.bookingsRepository.find({
+      relations: { service: true },
+    });
   }
 
   async findOne(id: string): Promise<Booking> {
-    const booking = await this.bookingsRepository.findOne({ 
+    const booking = await this.bookingsRepository.findOne({
       where: { id },
-      relations: { service: true }
+      relations: { service: true },
     });
-    
+
     if (!booking) {
       throw new NotFoundException(`Booking with ID ${id} not found`);
     }
+
     return booking;
   }
 
-  async updateStatus(id: string, updateBookingStatusDto: UpdateBookingStatusDto): Promise<Booking> {
+  async updateStatus(
+    id: string,
+    updateBookingStatusDto: UpdateBookingStatusDto,
+  ): Promise<Booking> {
     const booking = await this.findOne(id);
 
-    if (booking.status === BookingStatus.CANCELLED && updateBookingStatusDto.status === BookingStatus.COMPLETED) {
-      throw new BadRequestException('Cancelled bookings cannot be marked as completed');
+    if (
+      booking.status === BookingStatus.CANCELLED &&
+      updateBookingStatusDto.status === BookingStatus.COMPLETED
+    ) {
+      throw new BadRequestException(
+        'Cancelled bookings cannot be marked as completed'
+      );
     }
 
     booking.status = updateBookingStatusDto.status;
+
     return this.bookingsRepository.save(booking);
   }
 
   async cancel(id: string): Promise<Booking> {
     const booking = await this.findOne(id);
+
     booking.status = BookingStatus.CANCELLED;
+
     return this.bookingsRepository.save(booking);
   }
 }
